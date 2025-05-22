@@ -2,7 +2,9 @@
 
 **WeatherWise** is a modular Python application that provides weather insights through both interactive menus and natural language questions. It fetches real-time weather data from the OpenWeatherMap API, displays current conditions and forecast trends, and supports intelligent dialogue to help users decide on weather-related actions—like whether to carry an umbrella or wear a coat.
 
-## Features
+# WeatherWise
+
+## 🌦️ Features
 
 - Fetches real-time weather and 5-day forecasts for any city
 - Visualizes:
@@ -15,35 +17,44 @@
 - Uses fuzzy keyword matching to handle misspellings
 - Suggests smart clothing advice based on temperature analysis
 
-##  Setup Instructions
+# WeatherWise
 
-1.**Install Denpendencies**
+## 🔧 Setup Instructions
+
+1. **Install Dependencies**
 
 Run the following in your Python environment:
 
 ```bash
 pip install pyinputplus matplotlib requests
+```
+
+# WeatherWise
 
 2. **Configure API Key**
 
-Open config.py and replace the placeholder with your OpenWeatherMap API key:
+Open the `config.py` file and replace the placeholder with your actual OpenWeatherMap API key:
 
-python
-
+```python
 API_KEY = "your_actual_api_key"
+```
 
-3.**Run the Application**
+# WeatherWise
 
-From the root directory, run:
+3. **Run the Application**
 
-bash
+Make sure you're in the project root directory, then launch the app with:
+
+```bash
 python main.py
-This will launch a menu where you can:
+```
 
-Check current weather
+# WeatherWise
 
-View forecast charts
+This will open a menu interface where you can:
+- Check current weather
+- View forecast charts
+- Ask weather-related questions via natural language
 
-Ask weather-related questions
 
 
