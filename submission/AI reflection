@@ -1,1 +1,16 @@
+AI Reflection
 
+1.AI Tools Used
+In this project, I used ChatGPT as my AI assitant to help me to finish this project.I also used the tool extensively during the WeatherWise project. I leveraged it to dissect the problem in to more cleanly and modular components, and use it to write some of the larger Python modules (like $^{\prime}$ responder.py $)$ $^{\prime}$ ,parser.py $^{\prime}$ ,menu.py $^{\prime}$ ). It particularly helped me produce easily readable code, cleanly handle errors and optimize logic. I leveraged it to refactor long $i f$ else statements in to dictionary maps for clarity.
+
+2.Prompting Techniques
+Specific and iterative prompting I found it useful to both give specific prompts like: “Rewrite `handle_temperature’ to intelligently decide whether I should wear a coat’’ then have subsequent follow-up prompts to refine output like “Add fuzzy spell correction to parser.” I gave follow-up prompts to narrow and contextualize outputs until they were aligned with the project’s goals.
+
+3.What Worked Well?
+I am also proud of how the **natural language intent parser** worked out. I was able, with AI help, to improve it to account for typos such as “waer” (waer is a common typo for “waerst” i.e., warmst (you’re warm) ), and add more keywords to detect user intent (e.g., coat, sweater). It helped make the assistant appear smarter and friendlier.
+
+4.What Would You Do Differently?
+If I had more time, I would integrate **unit tests** for all core modules to ensure long-term maintainability. I would also explore using **Streamlit or Gradio** to turn the CLI app into a web interface.
+
+5.Final Thoughts
+That was the lesson of this project: how to work with AI not merely as a code-generating system but a thinking partner, for which I still had to check outputs, debug and mould to my context, but the experience helped me to code faster, learn the best Python practices and get a better output product.
