@@ -36,7 +36,7 @@ pip install pyinputplus matplotlib requests
 Open the `config.py` file and replace the placeholder with your actual OpenWeatherMap API key:
 
 ```python
-API_KEY = "your_actual_api_key"
+API_KEY = "1da7dea923d784a5dd83bac94cde8d65"
 ```
 
 # WeatherWise
