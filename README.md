@@ -23,6 +23,7 @@ Run the following in your Python environment:
 
 ```bash
 pip install pyinputplus matplotlib requests
+
 2. **Configure API Key**
 
 Open config.py and replace the placeholder with your OpenWeatherMap API key:
