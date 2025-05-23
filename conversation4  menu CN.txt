@@ -1,0 +1,501 @@
+您说：
+请继续第三部分
+ChatGPT 说：
+好的，我们现在开发项目的 第三部分：用户菜单与界面模块，路径为：
+
+ui/
+├── menu.py     ← 主菜单系统，使用 pyinputplus 实现
+└── display.py  ← 格式化输出天气信息与错误提示
+✅ menu.py – 主交互界面
+"""
+menu.py - Main menu system using pyinputplus for user interaction.
+"""
+
+import pyinputplus as pyip
+from weather_data.fetch import fetch_current_weather, fetch_forecast_weather
+from weather_data.visualise import (
+    plot_temperature_trend,
+    plot_precipitation_probability,
+    plot_wind_speed
+)
+from nlp_interface.parser import infer_weather_intent
+from nlp_interface.responder import generate_response
+from ui.display import show_weather_info, show_error
+
+def weather_menu():
+    while True:
+        print("\n===== WeatherWise Menu =====")
+        choice = pyip.inputMenu(
+            ["Check Current Weather", "Show Forecast Charts", "Ask Weather Question", "Exit"],
+            numbered=True
+        )
+
+        if choice == "Check Current Weather":
+            city = pyip.inputStr("Enter city name: ")
+            data = fetch_current_weather(city)
+            if data:
+                show_weather_info(data)
+            else:
+                show_error("Failed to retrieve current weather.")
+
+        elif choice == "Show Forecast Charts":
+            city = pyip.inputStr("Enter city name: ")
+            forecast = fetch_forecast_weather(city)
+            if forecast:
+                chart = pyip.inputMenu(["Temperature", "Precipitation", "Wind Speed"], numbered=True)
+                if chart == "Temperature":
+                    plot_temperature_trend(forecast, city)
+                elif chart == "Precipitation":
+                    plot_precipitation_probability(forecast, city)
+                elif chart == "Wind Speed":
+                    plot_wind_speed(forecast, city)
+            else:
+                show_error("Failed to retrieve forecast data.")
+
+        elif choice == "Ask Weather Question":
+            city = pyip.inputStr("Enter city name: ")
+            question = pyip.inputStr("Ask your weather question (e.g., 'Should I bring an umbrella?'): ")
+            intent = infer_weather_intent(question)
+            data = fetch_current_weather(city)
+            response = generate_response(intent, data)
+            print("\n🤖 " + response)
+
+        elif choice == "Exit":
+            print("Goodbye!")
+            break
+✅ display.py – 格式化输出
+"""
+display.py - Functions to display weather data and errors in a clean format.
+"""
+
+def show_weather_info(data):
+    """
+    Nicely format and display current weather data.
+    """
+    name = data.get("name", "Unknown")
+    desc = data['weather'][0]['description']
+    temp = data['main']['temp']
+    feels = data['main']['feels_like']
+    humidity = data['main']['humidity']
+    wind = data['wind']['speed']
+
+    print(f"\n📍 City: {name}")
+    print(f"🌤️  Condition: {desc}")
+    print(f"🌡️  Temperature: {temp}°C (Feels like {feels}°C)")
+    print(f"💧 Humidity: {humidity}%")
+    print(f"🌬️  Wind Speed: {wind} m/s")
+
+def show_error(message):
+    """
+    Display an error message in a consistent format.
+    """
+    print(f"\n❌ Error: {message}")
+📝 使用说明
+在你的 main.py 中调用这个菜单系统：
+
+from ui.menu import weather_menu
+
+if __name__ == "__main__":
+    weather_menu()
+✅ 功能清单已实现：
+✔ 主菜单 + 子菜单结构
+
+✔ 支持天气查询 / 图表展示 / 自然语言问答
+
+✔ 错误处理、输入验证（由 pyinputplus 提供）
+
+✔ 输出信息美观、直观
+
+接下来是否需要我帮你补一个 requirements.txt 或自动测试脚本？或者帮你打包项目目录结构为 ZIP 提交版本？
+
+您说：
+也请你可以使用字典吗 不要出现太多if else
+ChatGPT 说：
+非常好，坚持使用字典是模块化设计的优秀习惯 💡
+我们现在将 menu.py 中重复的 if-else 分支结构改为字典映射形式，保持逻辑简洁清晰。
+
+✅ 优化目标
+将这段结构：
+
+if choice == "Check Current Weather":
+    ...
+elif choice == "Show Forecast Charts":
+    ...
+elif choice == "Ask Weather Question":
+    ...
+改为：
+
+MENU_ACTIONS = {
+    "Check Current Weather": handle_current_weather,
+    "Show Forecast Charts": handle_forecast_charts,
+    "Ask Weather Question": handle_question,
+    "Exit": handle_exit
+}
+✅ 优化后的 menu.py（使用函数映射字典）
+"""
+menu.py - Menu system using pyinputplus, optimized with function mapping.
+"""
+
+import pyinputplus as pyip
+from weather_data.fetch import fetch_current_weather, fetch_forecast_weather
+from weather_data.visualise import (
+    plot_temperature_trend,
+    plot_precipitation_probability,
+    plot_wind_speed
+)
+from nlp_interface.parser import infer_weather_intent
+from nlp_interface.responder import generate_response
+from ui.display import show_weather_info, show_error
+
+def handle_current_weather():
+    city = pyip.inputStr("Enter city name: ")
+    data = fetch_current_weather(city)
+    if data:
+        show_weather_info(data)
+    else:
+        show_error("Failed to retrieve current weather.")
+
+def handle_forecast_charts():
+    city = pyip.inputStr("Enter city name: ")
+    forecast = fetch_forecast_weather(city)
+    if not forecast:
+        show_error("Failed to retrieve forecast data.")
+        return
+
+    chart_options = {
+        "Temperature": plot_temperature_trend,
+        "Precipitation": plot_precipitation_probability,
+        "Wind Speed": plot_wind_speed
+    }
+
+    chart_choice = pyip.inputMenu(list(chart_options.keys()), numbered=True)
+    chart_options[chart_choice](forecast, city)
+
+def handle_question():
+    city = pyip.inputStr("Enter city name: ")
+    question = pyip.inputStr("Ask your weather question (e.g., 'Should I bring an umbrella?'): ")
+    intent = infer_weather_intent(question)
+    data = fetch_current_weather(city)
+    response = generate_response(intent, data)
+    print("\n🤖 " + response)
+
+def handle_exit():
+    print("Goodbye!")
+    exit()
+
+MENU_ACTIONS = {
+    "Check Current Weather": handle_current_weather,
+    "Show Forecast Charts": handle_forecast_charts,
+    "Ask Weather Question": handle_question,
+    "Exit": handle_exit
+}
+
+def weather_menu():
+    while True:
+        print("\n===== WeatherWise Menu =====")
+        choice = pyip.inputMenu(list(MENU_ACTIONS.keys()), numbered=True)
+        action = MENU_ACTIONS.get(choice)
+        if action:
+            action()
+✅ 优点总结：
+优点	说明
+✂️ 去除多层 if-elif	所有菜单操作用字典统一管理
+🔄 扩展更方便	新增菜单项仅需：添加处理函数 + 加一行字典映射
+🧩 更模块化	每个处理功能封装为单独函数，可独立测试和复用
+是否需要我再帮你：
+
+✅ 整理项目的 requirements.txt
+
+✅ 创建 .ipynb 版本（如你需要 Colab 提交）
+
+✅ 输出一个 README.md 模板
+
+你可以直接告诉我继续哪个部分。
+
+您说：
+已上传的图片
+请问这是什么原因
+ChatGPT 说：
+你这个错误是：
+
+ModuleNotFoundError: No module named 'pyinputplus'
+
+📌 原因：
+你还没有安装 pyinputplus 这个库，这是我们菜单系统使用的第三方输入验证库。
+
+✅ 解决办法：
+在你的环境中运行以下命令安装：
+
+pip install pyinputplus
+如果你在 Jupyter Notebook 中，可以使用：
+
+!pip install pyinputplus
+🔄 安装后，再次运行程序即可解决错误。
+如果你还需要我生成 requirements.txt（包含所有依赖库），我可以马上为你写好。是否需要？
+
+您说：
+已上传的图片
+又出现了这个原因
+ChatGPT 说：
+这个错误是：
+
+ModuleNotFoundError: No module named 'weather_data'
+
+📌 原因：
+Python 无法找到 weather_data 这个模块，常见原因如下：
+
+✅ 解决方案：
+✅ 1. 项目目录结构必须正确
+确保你当前的 .py 或 .ipynb 文件 和你的项目结构在同一个根目录下：
+
+your_project/
+├── main.py
+├── weather_data/
+│   ├── __init__.py      ✅ 必须有这个文件（哪怕是空的）
+│   ├── fetch.py
+│   └── visualise.py
+├── nlp_interface/
+│   └── ...
+├── ui/
+│   └── ...
+⚠️ 如果你在 Colab 或 Jupyter 中运行，需要将路径设置正确（或使用相对导入）。
+
+✅ 2. 添加 __init__.py 文件
+在 weather_data/ 目录下，确保有一个文件：
+
+weather_data/__init__.py
+内容可以是空的，但它告诉 Python：这是一个包。
+
+✅ 3. 在正确位置运行脚本
+你运行的 .ipynb 或 .py 应该放在根目录里（和 weather_data 是同级）。
+
+比如：
+
+your_project/
+├── notebook.ipynb ✅ 在这里运行
+├── weather_data/
+✅ 4. （可选）手动添加路径（如果你不能移动文件）
+import sys
+sys.path.append('/path/to/your_project')  # 改成你的项目路径
+🧪 快速测试建议
+你可以先新建一个简单脚本 test_import.py 放在根目录运行，检查导入是否正常：
+
+from weather_data.fetch import fetch_current_weather
+
+print("✅ Module import successful!")
+是否需要我帮你生成一个完整的项目 ZIP 模板结构（含 __init__.py），方便你直接使用？
+
+您说：
+这是之前我新建的weather data代码库，不在这里吗：!mkdir -p weather_data
+!touch weather_data/__init__.py
+ChatGPT 说：
+你确实已经在 Jupyter Notebook 中用以下命令创建了 weather_data 目录并添加了 __init__.py 文件：
+
+!mkdir -p weather_data
+!touch weather_data/__init__.py
+✅ 这没错，但问题可能出在这几点：
+
+✅ ✅ 请逐一检查以下原因：
+🔍 1. 你运行代码的位置不在根目录
+即使你创建了 weather_data 目录，如果你当前的 notebook 是在另一个文件夹里（如 notebooks/），Python 找不到同级目录的模块。
+
+✅ 解决方法：运行下面代码强制添加模块路径：
+
+import sys
+import os
+
+# 添加当前 notebook 的上级目录为搜索路径
+sys.path.append(os.path.abspath('.'))
+然后再导入：
+
+from weather_data.fetch import fetch_current_weather
+🔍 2. 文件是否真的写入了代码？
+你可能只是建了空的 weather_data/fetch.py，但并没有把我们之前写的 fetch_current_weather() 函数粘进去。
+
+✅ 检查：
+
+!ls weather_data
+!cat weather_data/fetch.py
+🔍 3. Notebook 是否重启后忘了重新建目录？
+如果你在 Colab 或 Jupyter 重启了内核，那 !mkdir 和 !touch 建的文件会丢失。
+
+✅ 解决：重新执行一次：
+
+!mkdir -p weather_data
+!touch weather_data/__init__.py
+然后将之前写的代码重新写入 weather_data/fetch.py 等文件中。
+
+✅ 推荐做法（快速修复）：
+在 notebook 第一格加入：
+
+import sys, os
+sys.path.append(os.path.abspath('.'))
+确认 weather_data/fetch.py 已包含完整函数
+
+确保你当前 notebook 和 weather_data/ 是同级目录
+
+如果你希望，我可以马上帮你写一段用于自动创建并写入 weather_data/fetch.py 的代码。需要吗？
+
+您说：
+已上传的图片
+这是什么原因
+ChatGPT 说：
+你这张图的错误出现在这行代码：
+
+get_ipython().run_cell_magic('writefile', 'weather_data/fetch.py', '''...''')
+❌ 报错原因：
+Python 报错：
+
+SyntaxError: EOL while scanning string literal
+或
+code appears to be invalid or not properly escaped
+
+这是因为你在 '...''' 的 writefile 代码块中使用了 多行字符串但未正确换行或转义，导致字符串格式不正确，无法写入。
+
+✅ 正确写法（建议方式）：
+改用 Python 标准的文件写入方式，更清晰、稳定，不用写 escape 符号。
+
+fetch_code = """
+\"""fetch.py - Module for retrieving weather data from OpenWeatherMap API.\"""
+
+import requests
+from config import API_KEY
+
+BASE_URL = "https://api.openweathermap.org/data/2.5/"
+
+def fetch_current_weather(city):
+    \"\"\"Fetch current weather data for a given city.\"\"\"
+    url = f"{BASE_URL}weather?q={city}&appid={API_KEY}&units=metric"
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return None
+
+def fetch_forecast_weather(city):
+    \"\"\"Fetch 5-day forecast data (3-hour intervals) for a given city.\"\"\"
+    url = f"{BASE_URL}forecast?q={city}&appid={API_KEY}&units=metric"
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return None
+"""
+
+# 写入文件
+with open("weather_data/fetch.py", "w") as f:
+    f.write(fetch_code)
+🔁 使用步骤：
+在 notebook 新单元格中运行上面代码 ✅
+
+然后尝试导入模块：
+
+from weather_data.fetch import fetch_current_weather
+是否需要我帮你用这种方式一键生成所有模块文件内容（如 parser.py、visualise.py 等）？
+
+您说：
+这是刚刚出现新问题的代码：%%writefile weather_data/fetch.py
+"""
+fetch.py - Module for retrieving weather data from OpenWeatherMap API.
+"""
+
+import requests
+from config import API_KEY
+
+BASE_URL = "https://api.openweathermap.org/data/2.5/"
+
+def fetch_current_weather(city):
+    """
+    Fetch current weather data for a given city.
+    """
+    url = f"{BASE_URL}weather?q={city}&appid={API_KEY}&units=metric"
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return None
+
+def fetch_forecast_weather(city):
+    """
+    Fetch 5-day forecast data (3-hour intervals) for a given city.
+    """
+    url = f"{BASE_URL}forecast?q={city}&appid={API_KEY}&units=metric"
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return None
+ChatGPT 说：
+你使用的这段代码：
+
+%%writefile weather_data/fetch.py
+是 Jupyter 的 cell magic 命令，用于将 cell 的内容保存为一个 .py 文件。
+
+✅ 你这段代码本身没有语法错误，它是完全正确的。但出现问题通常有以下几种可能：
+
+✅ 检查项与解决方案
+🔍 1. 目录不存在
+如果 weather_data/ 目录不存在或之前被删除了，%%writefile 会报错。
+
+✅ 解决：
+
+!mkdir -p weather_data
+然后再运行 %%writefile cell。
+
+🔍 2. Cell 中缩进混乱或引号不匹配
+确保你整段代码粘贴进 cell 时，没有多余空格、破坏结构，尤其是：
+
+""" 多行 docstring 必须成对闭合
+
+不能中间夹杂中文全角引号
+
+没有多余的 tab 或空格破坏缩进
+
+✅ 复制你刚发的这段代码（它是正确格式），直接粘贴重新运行即可。
+
+🔍 3. 重新运行时“文件已打开”或“占用”
+Jupyter 有时会报错但不显示具体原因，尤其是在频繁写入同一文件时。
+
+✅ 解决：
+
+重启内核（Kernel → Restart）
+
+或使用 !rm weather_data/fetch.py 删除旧文件后再 %%writefile
+
+✅ 快速验证是否写入成功
+!cat weather_data/fetch.py
+看到代码输出说明写入成功 ✅
+
+如你愿意，我也可以提供一个脚本，自动创建并写入所有模块文件，你只需一次运行，省去手动复制粘贴麻烦。是否需要？
+
+您说：
+请再一次从头开始
+ChatGPT 说：
+✅ 已为你从头创建项目核心结构，包括以下内容：
+
+📁 文件夹结构
+/weather_data/         ← 包含 fetch.py（天气数据获取模块）和 __init__.py
+/nlp_interface/        ← 空模块，后续添加 parser 与 responder
+/ui/                   ← 空模块，后续添加菜单界面与显示
+/utils/                ← 可添加帮助函数
+config.py              ← 存放你的 OpenWeather API Key
+✅ 已创建文件：
+weather_data/fetch.py（已包含获取天气数据的代码）
+
+config.py（请手动填写你的 API Key）
+
+所有模块都有空的 __init__.py 文件
+
+你现在可以这样使用：
+
+from weather_data.fetch import fetch_current_weather
+from config import API_KEY
+是否需要我继续创建：
+
+visualise.py
+
+parser.py 和 responder.py
+
+menu.py 和 display.py
+
+📦 也可以最后一次性打包成一个完整 .zip 给你下载。你想继续哪一部分？ 
